@@ -8,6 +8,8 @@ namespace tmsang.infra
 {
     public class Storage: IStorage
     {
+        public string WebRootPath { get; set; }
+
         public Storage()
         {
 

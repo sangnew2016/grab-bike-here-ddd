@@ -9,6 +9,7 @@ namespace tmsang.domain
         TEntity FindOne(ISpecification<TEntity> spec);
         IEnumerable<TEntity> Find(ISpecification<TEntity> spec);
         void Add(TEntity entity);
+        void Update(TEntity entity);
         void Remove(TEntity entity);
     }
 }

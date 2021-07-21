@@ -33,5 +33,10 @@ namespace tmsang.infra
         {
             entities.Remove(entity);
         }
+
+        public void Update(T entity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

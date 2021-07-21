@@ -1,7 +1,5 @@
-﻿using System;
+﻿using System.Net;
 using System.Net.Mail;
-using MailKit.Net.Smtp;
-using MimeKit;
 using tmsang.domain;
 
 namespace tmsang.infra
@@ -10,28 +8,22 @@ namespace tmsang.infra
     {
         public void Dispatch(MailMessage mailMessage)
         {
-            // do something
-            // ...
+            // cau hinh gmail nhe
+            var host = "smtp.gmail.com";
+            var port = 587;
+            var username = "sangnew2021@gmail.com";
+            var password = "yukvcjyavaplidej";
 
-            //MimeMessage message = new MimeMessage();
-
-            //MailboxAddress from = new MailboxAddress("Admin", "admin@example.com");
-            //message.From.Add(from);
-
-            //MailboxAddress to = new MailboxAddress("User", "user@example.com");
-            //message.To.Add(to);
-
-            //message.Subject = "This is email subject";
-            //BodyBuilder bodyBuilder = new BodyBuilder();
-            //bodyBuilder.HtmlBody = "<h1>Hello World!</h1>";
-            //bodyBuilder.TextBody = "Hello World!";
-
-            //SmtpClient client = new SmtpClient();
-            //client.Connect("smtp_address_here", port_here, true);
-            //client.Authenticate("user_name_here", "pwd_here");
-            //client.Send(message);
-            //client.Disconnect(true);
-            //client.Dispose();
+            using (var smtp = new SmtpClient())
+            {
+                smtp.Host = host;
+                smtp.EnableSsl = true;
+                NetworkCredential NetworkCred = new NetworkCredential(username, password);
+                smtp.UseDefaultCredentials = true;
+                smtp.Credentials = NetworkCred;
+                smtp.Port = port;
+                smtp.Send(mailMessage);
+            }
         }
     }
 }

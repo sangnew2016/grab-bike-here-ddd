@@ -4,6 +4,7 @@ namespace tmsang.domain
 {
     public interface IEmailGenerator
     {
-        MailMessage Generate(object objHolder, E_AccountEmailTemplate emailTemplate);
+        MailMessage Generate(EmailHolder objHolder, E_AccountEmailTemplate emailTemplate);
     }
+
 }

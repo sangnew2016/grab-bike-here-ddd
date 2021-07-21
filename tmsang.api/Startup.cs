@@ -32,7 +32,6 @@ namespace tmsang.api
 
             services.AddHttpContextAccessor();
             services.AddGrabCustomServices(Configuration);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +54,10 @@ namespace tmsang.api
             {
                 endpoints.MapControllers();
             });
+
+            // toi can mot cai class, luc ban dau init chay se load lieu vao day + sau khi dang ky service trong container
+            new Initialization(app);
+
         }
     }
 }

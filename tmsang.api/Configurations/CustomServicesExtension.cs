@@ -6,7 +6,7 @@ using tmsang.infra;
 
 namespace tmsang.api
 {
-    public static class AddGrabCustomServicesExtension
+    public static class CustomServicesExtension
     {
         public static IServiceCollection AddGrabCustomServices(
              this IServiceCollection services, 
@@ -29,10 +29,10 @@ namespace tmsang.api
             services.AddScoped<IUnitOfWork, MemoryUnitOfWork>();
 
             // DI: Application
-            services.AddScoped<AccountDomainService, AccountDomainService>();
+            services.AddScoped<AccountDomainService>();
             services.AddScoped<IAccountService, AccountService>();
 
-            //// DI: Domain
+            // DI: Domain
             services.AddScoped<Handles<R_GuestCreatedEvent>, DomainEventHandle<R_GuestCreatedEvent>>();
             services.AddScoped<Handles<R_GuestRequestedEvent>, DomainEventHandle<R_GuestRequestedEvent>>();
             services.AddScoped<Handles<R_AdminCreatedEvent>, DomainEventHandle<R_AdminCreatedEvent>>();
@@ -41,6 +41,7 @@ namespace tmsang.api
             services.AddScoped<Handles<R_AccountSmsVerificationEvent>, R_AccountSmsVerificationHandle>();
             services.AddScoped<Handles<R_AdminCreatedEvent>, R_AdminCreatedEmailHandle>();
 
+            // Resolve cac service manual
             var serviceProvider = services.BuildServiceProvider();
             DomainEvents.Init(serviceProvider);
 

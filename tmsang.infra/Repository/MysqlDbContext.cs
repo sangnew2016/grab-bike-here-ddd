@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,10 @@ namespace tmsang.infra
 {
     public class MysqlDbContext: DbContext
     {
+        public MysqlDbContext(): base()
+        {
+        }
+
         public MysqlDbContext(DbContextOptions<MysqlDbContext> options) : base(options)
         {
         }
@@ -37,9 +42,22 @@ namespace tmsang.infra
         public DbSet<B_OrderRequestLocation> B_OrderRequestLocations { get; set; }
         public DbSet<B_OrderPaymentCreditCard> B_OrderPaymentCreditCards { get; set; }
         public DbSet<B_OrderHistory> B_OrderHistories { get; set; }
-        
 
 
+        public override int SaveChanges()
+        {
+            var entities = from e in ChangeTracker.Entries()
+                           where e.State == EntityState.Added
+                               || e.State == EntityState.Modified
+                           select e.Entity;
+            foreach (var entity in entities)
+            {
+                var validationContext = new ValidationContext(entity);
+                Validator.ValidateObject(entity, validationContext);
+            }
+
+            return base.SaveChanges();
+        }
 
     }
 }

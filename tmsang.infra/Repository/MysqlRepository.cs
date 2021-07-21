@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,38 +20,51 @@ namespace tmsang.infra
 
      */
 
-    public class MysqlRepository<T>: IRepository<T> where T : IAggregateRoot
+    public class MysqlRepository<T>: IRepository<T> where T : class, IAggregateRoot
     {
-        private MysqlDbContext mysqlDbContext;
+        private readonly MysqlDbContext _dbContext;
+        private DbSet<T> table = null;
 
-        public MysqlRepository(MysqlDbContext mysqlDbContext)
+        public MysqlRepository()
         {
-            this.mysqlDbContext = mysqlDbContext;
+            _dbContext = new MysqlDbContext();
+            table = _dbContext.Set<T>();
+        }
+        public MysqlRepository(MysqlDbContext dbContext)
+        {
+            _dbContext = dbContext;
+            table = _dbContext.Set<T>();
         }
 
         public void Add(T entity)
         {
-            throw new NotImplementedException();
+            table.Add(entity);
+        }
+
+        public void Update(T obj)
+        {
+            table.Attach(obj);
+            _dbContext.Entry(obj).State = EntityState.Modified;
         }
 
         public IEnumerable<T> Find(ISpecification<T> spec)
         {
-            throw new NotImplementedException();
+            return table.Where(spec.SpecExpression);
         }
 
         public T FindById(Guid id)
         {
-            throw new NotImplementedException();
+            return table.Find(id);
         }
 
         public T FindOne(ISpecification<T> spec)
         {
-            throw new NotImplementedException();
+            return table.Where(spec.SpecExpression).FirstOrDefault();
         }
 
         public void Remove(T entity)
         {
-            throw new NotImplementedException();
+            table.Remove(entity);
         }
     }
 }
