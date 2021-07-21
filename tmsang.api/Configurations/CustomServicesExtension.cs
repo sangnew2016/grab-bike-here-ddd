@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using tmsang.application;
 using tmsang.domain;
@@ -18,10 +19,11 @@ namespace tmsang.api
             services.AddScoped<IEmailGenerator, EmailGenerator>();
             services.AddScoped<IRequestCorrelationIdentifier, W3CWebRequestCorrelationIdentifier>();
             services.AddScoped<IDomainEventRepository, MemoryDomainEventRepository>();
-            services.AddSingleton<ISmsProvider, SmsProvider>();
+            services.AddScoped<ISmsProvider, SmsProvider>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddSingleton<IStorage, Storage>();
-            services.AddSingleton<IAuth, Auth>();
+            services.AddScoped<IStorage, Storage>();
+            services.AddScoped<IAuth, Auth>();
 
             services.AddScoped<IRepository<R_Admin>, MemoryRepository<R_Admin>>();
             services.AddScoped<IRepository<R_Driver>, MemoryRepository<R_Driver>>();

@@ -8,11 +8,16 @@ namespace tmsang.infra
 {
     public class Storage: IStorage
     {
-        public string WebRootPath { get; set; }
+        public string RootFolder { 
+            get {
+                return Singleton.Instance.RootPath;
+            } 
+        }
+        
 
         public Storage()
         {
-
+            
         }
 
         private Dictionary<string, SmsVerification> SmsStorage = new Dictionary<string, SmsVerification>();
@@ -52,4 +57,6 @@ namespace tmsang.infra
         public DateTime Expired { get; set; }
         public string Value { get; set; }
     }
+
+    
 }

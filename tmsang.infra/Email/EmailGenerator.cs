@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
@@ -18,7 +17,7 @@ namespace tmsang.infra
         public MailMessage Generate(EmailHolder holder, E_AccountEmailTemplate emailTemplate)
         {
             // tu emailTemplate -> lay ra "template content"
-            var filePath = _storage.WebRootPath + @"\Files\Templates\" + emailTemplate.GetName() + ".txt";
+            var filePath = _storage.RootFolder + @"\Files\Templates\" + emailTemplate.GetName() + ".txt";
             string content = File.ReadAllText(filePath);
 
             // tu parameterEmailTemplate -> do tham so vao "template content" | theo dang {0}, {1}, {2}, ...
