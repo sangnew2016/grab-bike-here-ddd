@@ -1,26 +1,44 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
 using tmsang.domain;
 
 namespace tmsang.infra
 {
     public class MemoryUnitOfWork : IUnitOfWork
     {
-        public void Commit()
+        public MemoryUnitOfWork()
         {
-            //... do something here to save
-            
-        }
-
-        public void Dispose()
-        {
-            // do something here to dispose
 
         }
 
-        public void Rollback()
+        public void CommitTransaction()
         {
-            // do something here -> to rollback
+            // nothing to do
+        }
 
+        public void ForceBeginTransaction()
+        {
+            // nothing to do
+        }
+
+        public void RollbackTransaction()
+        {
+            // nothing to do
+        }
+
+        public int SaveChanges()
+        {
+            return 0;
+        }
+
+        public DbSet<T> Set<T>() where T : class
+        {
+            return null;
+        }
+
+        public void SetIsolationLevel(IsolationLevel isolationLevel)
+        {
+            // nothing to do
         }
     }
 }

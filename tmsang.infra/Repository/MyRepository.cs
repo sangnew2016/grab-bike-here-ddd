@@ -20,31 +20,33 @@ namespace tmsang.infra
 
      */
 
-    public class MysqlRepository<T>: IRepository<T> where T : class, IAggregateRoot
+    public class MyRepository<T>: IRepository<T> where T : class, IAggregateRoot
     {
-        private readonly MysqlDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
         private DbSet<T> table = null;
 
-        public MysqlRepository()
+        public MyRepository()
         {
-            _dbContext = new MysqlDbContext();
-            table = _dbContext.Set<T>();
+            
         }
-        public MysqlRepository(MysqlDbContext dbContext)
+        public MyRepository(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
-            table = _dbContext.Set<T>();
+            _unitOfWork = unitOfWork;
+            table = _unitOfWork.Set<T>();
         }
 
         public void Add(T entity)
         {
             table.Add(entity);
+
+            _unitOfWork.SaveChanges();
         }
 
         public void Update(T obj)
         {
             table.Attach(obj);
-            _dbContext.Entry(obj).State = EntityState.Modified;
+
+            _unitOfWork.SaveChanges();
         }
 
         public IEnumerable<T> Find(ISpecification<T> spec)
@@ -65,6 +67,8 @@ namespace tmsang.infra
         public void Remove(T entity)
         {
             table.Remove(entity);
+
+            _unitOfWork.SaveChanges();
         }
     }
 }

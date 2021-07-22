@@ -9,13 +9,13 @@ using tmsang.domain;
 
 namespace tmsang.infra
 {
-    public class MysqlDbContext: DbContext
+    public class MyDbContext: DbContext
     {
-        public MysqlDbContext(): base()
+        public MyDbContext(): base()
         {
         }
 
-        public MysqlDbContext(DbContextOptions<MysqlDbContext> options) : base(options)
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
         }
 

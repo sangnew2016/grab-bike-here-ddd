@@ -71,7 +71,6 @@ namespace tmsang.application
             var account = R_Admin.Create(registerDto.FullName, registerDto.Phone, registerDto.Email, hash.Hash, hash.Salt);
             
             this.adminAccountRepository.Add(account);
-            this.unitOfWork.Commit();
         }
 
         public void AdminForgotPassword(string email)
@@ -104,7 +103,6 @@ namespace tmsang.application
             }
             // update password vao bang R_Admin
             user.ResetPassword(resetPasswordDto.NewPassword);
-            this.unitOfWork.Commit();
             // return token
             return new TokenDto {
                 jwt = auth.GenerateToken(user.Id + "," + user.Email)

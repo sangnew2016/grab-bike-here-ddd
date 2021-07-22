@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using tmsang.application;
 using tmsang.domain;
 using tmsang.infra;
@@ -28,7 +30,6 @@ namespace tmsang.api
             services.AddScoped<IRepository<R_Admin>, MemoryRepository<R_Admin>>();
             services.AddScoped<IRepository<R_Driver>, MemoryRepository<R_Driver>>();
             services.AddScoped<IRepository<R_Guest>, MemoryRepository<R_Guest>>();
-            services.AddScoped<IUnitOfWork, MemoryUnitOfWork>();
 
             // DI: Application
             services.AddScoped<AccountDomainService>();
@@ -48,6 +49,24 @@ namespace tmsang.api
             DomainEvents.Init(serviceProvider);
 
             return services;
+        }
+
+        public static void AddUnitOfWork<T>(this IServiceCollection services) where T : DbContext
+        {
+            // services.AddScoped<IUnitOfWork<T>, DbUnitOfWork<T>>();           // do xai memory, nen rem dong nay
+            // services.AddScoped<IUnitOfWork>(provider => provider.GetService<IUnitOfWork<T>>());
+            services.AddScoped<IUnitOfWork, MemoryUnitOfWork>();
+            
+        }
+
+        public static void AddUnitOfWorkPool(this IServiceCollection services, Action<UnitOfWorkPoolOptionsBuilder> optionsAction)
+        {
+            var optionsBuilder = new UnitOfWorkPoolOptionsBuilder();
+            optionsAction.Invoke(optionsBuilder);
+
+            services.AddScoped(typeof(IUnitOfWork<>), typeof(DbUnitOfWork<>));
+            services.AddSingleton(typeof(UnitOfWorkPoolOptions), optionsBuilder.Options);
+            services.AddScoped<IUnitOfWorkPool, DbUnitOfWorkPool>();
         }
     }
 }

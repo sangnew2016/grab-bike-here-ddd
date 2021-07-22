@@ -1,5 +1,4 @@
-﻿using Castle.Windsor;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -54,7 +53,7 @@ namespace tmsang.domain
           
             if (Container != null) {
                 // var handlers = Container.GetRequiredService<Handles<T>>();
-                var handlers = Container.GetServices<Handles<T>>();
+                var handlers = Container.GetServices<Handles<T>>();                 // TODO: ??? khong biet tai sao here -> gay loi (singleton - ma lai di load constructor lai ????)
                 foreach (var handler in handlers) {
                     handler.Handle(args);
                 }

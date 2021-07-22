@@ -16,12 +16,10 @@ namespace tmsang.infra
         public void Dispatch(MailMessage mailMessage)
         {
             // cau hinh gmail nhe
-            var temp = _config.GetSection("Email:Host").Value;
-
-            var host = "smtp.gmail.com";  
-            var port = 587;
-            var username = "sangnew2021@gmail.com";
-            var password = "yukvcjyavaplidej";
+            var host = _config.GetSection("Email:Host").Value;  
+            var port = int.Parse(_config.GetSection("Email:Port").Value);
+            var username = _config.GetSection("Email:Username").Value;
+            var password = _config.GetSection("Email:Password").Value;
 
             var smtp = new SmtpClient
             {

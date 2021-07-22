@@ -1,13 +1,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using tmsang.infra;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace tmsang.api
+namespace tmsang.demo
 {
     public class Startup
     {
@@ -21,22 +26,16 @@ namespace tmsang.api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // TODO: add dbcontext cho MySQL
-            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContextPool<MyDbContext>(options => options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
-            // services.AddDbContext<MyDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ReleasesDb")));
-
-            // TODO: add UnitOfWork
-            services.AddUnitOfWork<MyDbContext>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "tmsang.api", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "tmsang.demo", Version = "v1" });
             });
 
-            //services.AddHttpContextAccessor();
-            services.AddGrabCustomServices(Configuration);
+            services.AddSingleton<MyFatherService>();
+            services.AddSingleton<MyMotherService>();
+            services.AddSingleton<MyChildService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,7 +45,7 @@ namespace tmsang.api
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "tmsang.api v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "tmsang.demo v1"));
             }
 
             app.UseHttpsRedirection();
@@ -60,8 +59,13 @@ namespace tmsang.api
                 endpoints.MapControllers();
             });
 
-            // toi can mot cai class, luc ban dau init chay se load lieu vao day + sau khi dang ky service trong container
-            new Initialization(app);
+            // get services
+            var config = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
+            var father = app.ApplicationServices.GetRequiredService<MyFatherService>();
+            //var mother = app.ApplicationServices.GetRequiredService<MyMotherService>();
+            //var child = app.ApplicationServices.GetRequiredService<MyChildService>();
+            var count = father.Count;
 
         }
     }
