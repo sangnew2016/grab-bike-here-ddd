@@ -9,7 +9,7 @@ using tmsang.infra;
 namespace tmsang.infra.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20210723075507_FirstMigration")]
+    [Migration("20210726103227_FirstMigration")]
     partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

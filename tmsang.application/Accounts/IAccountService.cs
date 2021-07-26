@@ -15,5 +15,7 @@
         TokenDto GuestResetPassword(GuestResetPasswordDto resetPasswordDto);
         TokenDto DriverResetPassword(DriverResetPasswordDto resetPasswordDto);
         TokenDto AdminResetPassword(AdminResetPasswordDto resetPasswordDto);
+
+        TokenDto AdminChangePassword(AdminChangePasswordDto changePasswordDto);
     }
 }

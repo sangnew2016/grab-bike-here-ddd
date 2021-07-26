@@ -6,4 +6,11 @@
         Deactive = 0,
         Deleted = -1
     }
+
+    public enum E_AccountType
+    {
+        Admin = 1,
+        Driver = 2,
+        Guest = 3
+    }
 }

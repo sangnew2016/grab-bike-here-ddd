@@ -27,9 +27,9 @@ namespace tmsang.api
             services.AddScoped<IStorage, Storage>();
             services.AddScoped<IAuth, Auth>();
 
-            services.AddScoped<IRepository<R_Admin>, MemoryRepository<R_Admin>>();
-            services.AddScoped<IRepository<R_Driver>, MemoryRepository<R_Driver>>();
-            services.AddScoped<IRepository<R_Guest>, MemoryRepository<R_Guest>>();
+            services.AddScoped<IRepository<R_Admin>, MyRepository<R_Admin>>();
+            services.AddScoped<IRepository<R_Driver>, MyRepository<R_Driver>>();
+            services.AddScoped<IRepository<R_Guest>, MyRepository<R_Guest>>();
 
             // DI: Application
             services.AddScoped<AccountDomainService>();
@@ -53,9 +53,9 @@ namespace tmsang.api
 
         public static void AddUnitOfWork<T>(this IServiceCollection services) where T : DbContext
         {
-            // services.AddScoped<IUnitOfWork<T>, DbUnitOfWork<T>>();           // do xai memory, nen rem dong nay
-            // services.AddScoped<IUnitOfWork>(provider => provider.GetService<IUnitOfWork<T>>());
-            services.AddScoped<IUnitOfWork, MemoryUnitOfWork>();
+            services.AddScoped<IUnitOfWork<T>, DbUnitOfWork<T>>();           // do xai memory, nen rem dong nay
+            services.AddScoped<IUnitOfWork>(provider => provider.GetService<IUnitOfWork<T>>());
+            // services.AddScoped<IUnitOfWork, MemoryUnitOfWork>();
             
         }
 

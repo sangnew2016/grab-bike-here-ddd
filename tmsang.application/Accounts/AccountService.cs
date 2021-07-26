@@ -40,7 +40,7 @@ namespace tmsang.application
             loginDto.EmptyValidation();
 
             // doi chieu email - co ton tai trong database
-            var user = this.accountDomainService.GetAdmin(loginDto.Email);
+            var user = this.accountDomainService.GetAdminByEmail(loginDto.Email);
             if (user == null)
             {
                 throw new Exception("This account is not exists");
@@ -53,7 +53,7 @@ namespace tmsang.application
             }
             // neu thoa thi return token
             return new TokenDto {
-                jwt = auth.GenerateToken(user.Id + "," + loginDto.Email)
+                jwt = auth.GenerateToken(user.Id.ToString())
             };
         }
 
@@ -69,14 +69,14 @@ namespace tmsang.application
             // add thong tin dang ky vao bang R_Admin -> raise event (email)
             var hash = auth.EncryptPassword(registerDto.Password);
             var account = R_Admin.Create(registerDto.FullName, registerDto.Phone, registerDto.Email, hash.Hash, hash.Salt);
-            
+            this.unitOfWork.ForceBeginTransaction();
             this.adminAccountRepository.Add(account);
         }
 
         public void AdminForgotPassword(string email)
         {
             // kiem tra su ton tai user
-            var user = this.accountDomainService.GetAdmin(email);
+            var user = this.accountDomainService.GetAdminByEmail(email);
             if (user == null)
             {
                 throw new Exception("This account is not exists");
@@ -91,7 +91,7 @@ namespace tmsang.application
             // validate input (required)
             resetPasswordDto.EmptyValidation();
             // kiem tra su ton tai user
-            var user = this.accountDomainService.GetAdmin(resetPasswordDto.Email);
+            var user = this.accountDomainService.GetAdminByEmail(resetPasswordDto.Email);
             if (user == null)
             {
                 throw new Exception("This account is not exists");
@@ -103,9 +103,33 @@ namespace tmsang.application
             }
             // update password vao bang R_Admin
             user.ResetPassword(resetPasswordDto.NewPassword);
+            this.unitOfWork.ForceBeginTransaction();
+            this.adminAccountRepository.Update(user);
             // return token
             return new TokenDto {
-                jwt = auth.GenerateToken(user.Id + "," + user.Email)
+                jwt = auth.GenerateToken(user.Id.ToString())
+            };
+        }
+
+        public TokenDto AdminChangePassword(AdminChangePasswordDto changePasswordDto)
+        {
+            // validate input (required)
+            changePasswordDto.EmptyValidation();
+            // lay thong tin user trong HttpContext
+            //var user = context.Items["User"];
+            //// kiem tra SMS code (duoc goi luc Forgot password)
+            //var code = this.storage.SmsGetCode(user.Phone);
+            //if (code != changePasswordDto.SmsCode)
+            //{
+            //    throw new Exception("SMS Code is invalid");
+            //}
+            //// update password vao bang R_Admin
+            //user.ResetPassword(changePasswordDto.NewPassword);
+            //this.adminAccountRepository.Update(user);
+            // return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken("343")
             };
         }
 

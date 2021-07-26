@@ -24,10 +24,19 @@
             return user != null;
         }
 
-        public R_Admin GetAdmin(string email)
+        public R_Admin GetAdminById(string id)
         {
             // doi chieu email/phone voi database
-            var r_AdminGetRegisteredAccountSpec = new R_AdminGetRegisteredAccountSpec(email);
+            var r_AdminGetRegisteredAccountSpec = new R_AdminGetByEmailSpec(id);
+            var user = this.adminAccountRepository.FindOne(r_AdminGetRegisteredAccountSpec);
+
+            return user;
+        }
+
+        public R_Admin GetAdminByEmail(string email)
+        {
+            // doi chieu email/phone voi database
+            var r_AdminGetRegisteredAccountSpec = new R_AdminGetByEmailSpec(email);
             var user = this.adminAccountRepository.FindOne(r_AdminGetRegisteredAccountSpec);
 
             return user;

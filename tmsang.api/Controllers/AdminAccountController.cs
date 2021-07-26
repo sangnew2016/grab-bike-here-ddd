@@ -64,5 +64,19 @@ namespace tmsang.api
                 throw;
             }
         }
+
+        [Authorize]
+        [HttpPost("change")]
+        public TokenDto ChangePassword(AdminChangePasswordDto changePasswordDto)
+        {
+            try
+            {
+                return this.accountService.AdminChangePassword(changePasswordDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
     }
 }
