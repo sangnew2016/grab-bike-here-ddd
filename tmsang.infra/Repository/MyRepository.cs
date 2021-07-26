@@ -17,6 +17,8 @@ namespace tmsang.infra
         3. Can dang ky [dbcontext, connection] tren ConfigureServices
         4. Can tao mot class Repository de thao lieu - voi su tham du cua class dbContext
 
+            // _unitOfWork.SaveChanges();
+            // Khong can saveChange o day, vi API ho tro FilterAction, chan cuoi Request, neu OK, no thuc hien SaveChange , roi Commit.
 
      */
 
@@ -38,15 +40,11 @@ namespace tmsang.infra
         public void Add(T entity)
         {
             table.Add(entity);
-
-            _unitOfWork.SaveChanges();
         }
 
         public void Update(T obj)
         {
             table.Attach(obj);
-
-            _unitOfWork.SaveChanges();
         }
 
         public IEnumerable<T> Find(ISpecification<T> spec)
@@ -67,8 +65,6 @@ namespace tmsang.infra
         public void Remove(T entity)
         {
             table.Remove(entity);
-
-            _unitOfWork.SaveChanges();
         }
     }
 }

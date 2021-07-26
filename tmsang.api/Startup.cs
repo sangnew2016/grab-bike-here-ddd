@@ -29,7 +29,13 @@ namespace tmsang.api
             // TODO: add UnitOfWork
             services.AddUnitOfWork<MyDbContext>();
 
-            services.AddControllers();
+            // add Cors
+            services.AddCors();
+
+            services.AddControllers(options => {
+                options.Filters.Add(typeof(UnitOfWorkTransactionFilter));
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "tmsang.api", Version = "v1" });
@@ -54,6 +60,15 @@ namespace tmsang.api
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            // custom jwt auth middleware
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

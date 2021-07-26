@@ -11,10 +11,7 @@ namespace tmsang.infra
 {
     public class MyDbContext: DbContext
     {
-        public MyDbContext(): base()
-        {
-        }
-
+        
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
         }
@@ -57,6 +54,31 @@ namespace tmsang.infra
             }
 
             return base.SaveChanges();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<R_Account>().ToTable("R_Accounts");
+            modelBuilder.Entity<R_Admin>().ToTable("R_Admins");
+            modelBuilder.Entity<R_Driver>().ToTable("R_Drivers");
+            modelBuilder.Entity<R_Guest>().ToTable("R_Guests");
+            modelBuilder.Entity<B_DriverBike>().ToTable("B_DriverBikes");
+
+            modelBuilder.Entity<B_AdminHistory>().ToTable("B_AdminHistories");
+            modelBuilder.Entity<B_DriverHistory>().ToTable("B_DriverHistories");
+            modelBuilder.Entity<B_GuestHistory>().ToTable("B_GuestHistories");
+
+            modelBuilder.Entity<R_Order>().ToTable("R_Orders");
+            modelBuilder.Entity<R_OrderRequest>().ToTable("R_OrderRequests");
+            modelBuilder.Entity<R_OrderResponse>().ToTable("R_OrderResponses");
+            modelBuilder.Entity<R_OrderPayment>().ToTable("R_OrderPayments");
+            modelBuilder.Entity<R_OrderEvaluation>().ToTable("R_OrderEvaluations");
+            modelBuilder.Entity<B_OrderPaymentCreditCard>().ToTable("B_OrderPaymentCreditCards");
+            
+            modelBuilder.Entity<B_OrderRequestHistory>().ToTable("B_OrderRequestHistories");
+            modelBuilder.Entity<B_OrderResponseHistory>().ToTable("B_OrderResponseHistories");
+            modelBuilder.Entity<B_OrderPaymentHistory>().ToTable("B_OrderPaymentHistories");
+            modelBuilder.Entity<B_OrderEvaluationHistory>().ToTable("B_OrderEvaluationHistories");
         }
 
     }
