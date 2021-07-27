@@ -11,7 +11,13 @@ namespace tmsang.api
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var user = (R_Account)context.HttpContext.Items["User"];
+            var role = (string)context.HttpContext.Items["Role"];
+            object user = null;
+            if (role == E_AccountType.Admin.ToString())
+            {
+                user = (R_Admin)context.HttpContext.Items["User"];
+            }
+            
             if (user == null)
             {
                 // not logged in

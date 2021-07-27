@@ -26,6 +26,7 @@ namespace tmsang.api
 
             services.AddScoped<IStorage, Storage>();
             services.AddScoped<IAuth, Auth>();
+            services.AddScoped<IUtil, Util>();
 
             services.AddScoped<IRepository<R_Admin>, MyRepository<R_Admin>>();
             services.AddScoped<IRepository<R_Driver>, MyRepository<R_Driver>>();

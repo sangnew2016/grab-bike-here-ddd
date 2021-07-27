@@ -39,7 +39,7 @@ namespace tmsang.api
                     throw new Exception("Your token is invalid");
                 }
 
-                var id = _auth.GetClaim(token, "id");
+                var id = _auth.GetClaim(token, "nameid");
                 var role = _auth.GetClaim(token, "role");
                 object user = null;
 
@@ -61,6 +61,7 @@ namespace tmsang.api
 
                 // attach user to context on successful jwt validation
                 context.Items["User"] = user;
+                context.Items["Role"] = role;
             }
             catch
             {

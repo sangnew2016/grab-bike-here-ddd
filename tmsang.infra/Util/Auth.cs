@@ -21,7 +21,7 @@ namespace tmsang.domain
 
         }
 
-        public string GenerateToken(string userId)
+        public string GenerateToken(string userId, string role)
         {
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(mySecret));
 
@@ -31,6 +31,7 @@ namespace tmsang.domain
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                    new Claim(ClaimTypes.Role, role),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 Issuer = myIssuer,

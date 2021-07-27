@@ -44,7 +44,7 @@ namespace tmsang.infra
 
         public void Update(T obj)
         {
-            table.Attach(obj);
+            table.Update(obj);
         }
 
         public IEnumerable<T> Find(ISpecification<T> spec)

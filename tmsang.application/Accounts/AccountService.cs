@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using tmsang.domain;
 
 namespace tmsang.application
@@ -12,7 +13,7 @@ namespace tmsang.application
         readonly IAuth auth;
 
         readonly AccountDomainService accountDomainService;
-        
+        readonly IHttpContextAccessor http;
         readonly IUnitOfWork unitOfWork;
 
         public AccountService(
@@ -22,6 +23,7 @@ namespace tmsang.application
             AccountDomainService accountDomainService,
             IStorage storage,
             IAuth auth,
+            IHttpContextAccessor http,
             IUnitOfWork unitOfWork)
         {
             this.adminAccountRepository = adminAccountRepository;
@@ -30,6 +32,7 @@ namespace tmsang.application
             this.accountDomainService = accountDomainService;
             this.storage = storage;
             this.auth = auth;
+            this.http = http;
 
             this.unitOfWork = unitOfWork;
         }
@@ -53,7 +56,7 @@ namespace tmsang.application
             }
             // neu thoa thi return token
             return new TokenDto {
-                jwt = auth.GenerateToken(user.Id.ToString())
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Admin.ToString())
             };
         }
 
@@ -107,7 +110,7 @@ namespace tmsang.application
             this.adminAccountRepository.Update(user);
             // return token
             return new TokenDto {
-                jwt = auth.GenerateToken(user.Id.ToString())
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Admin.ToString())
             };
         }
 
@@ -116,20 +119,20 @@ namespace tmsang.application
             // validate input (required)
             changePasswordDto.EmptyValidation();
             // lay thong tin user trong HttpContext
-            //var user = context.Items["User"];
-            //// kiem tra SMS code (duoc goi luc Forgot password)
-            //var code = this.storage.SmsGetCode(user.Phone);
-            //if (code != changePasswordDto.SmsCode)
-            //{
-            //    throw new Exception("SMS Code is invalid");
-            //}
-            //// update password vao bang R_Admin
-            //user.ResetPassword(changePasswordDto.NewPassword);
-            //this.adminAccountRepository.Update(user);
+            var user = (R_Admin)http.HttpContext.Items["User"];
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(user.Phone);
+            if (code != changePasswordDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // update password vao bang R_Admin
+            user.ResetPassword(changePasswordDto.NewPassword);
+            this.adminAccountRepository.Update(user);
             // return token
             return new TokenDto
             {
-                jwt = auth.GenerateToken("343")
+                jwt = auth.GenerateToken("343", E_AccountType.Admin.ToString())
             };
         }
 

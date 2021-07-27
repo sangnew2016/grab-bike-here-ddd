@@ -27,8 +27,8 @@
         public R_Admin GetAdminById(string id)
         {
             // doi chieu email/phone voi database
-            var r_AdminGetRegisteredAccountSpec = new R_AdminGetByEmailSpec(id);
-            var user = this.adminAccountRepository.FindOne(r_AdminGetRegisteredAccountSpec);
+            var r_AdminGetByIdSpec = new R_AdminGetByIdSpec(id);
+            var user = this.adminAccountRepository.FindOne(r_AdminGetByIdSpec);
 
             return user;
         }
