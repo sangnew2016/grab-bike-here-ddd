@@ -6,19 +6,6 @@ namespace tmsang.application
     {
         public string Email { get; set; }
         public string NewPassword { get; set; }
-    }
-
-    public class GuestResetPasswordDto: ResetPasswordDto
-    {
-    }
-
-    public class DriverResetPasswordDto: ResetPasswordDto
-    {
-        public string SmsCode { get; set; }
-    }
-
-    public class AdminResetPasswordDto: ResetPasswordDto
-    {
         public string SmsCode { get; set; }
 
         public void EmptyValidation()
@@ -27,5 +14,19 @@ namespace tmsang.application
             if (string.IsNullOrEmpty(this.NewPassword)) throw new Exception("Password is null or empty");
             if (string.IsNullOrEmpty(this.SmsCode)) throw new Exception("SmsCode value is null or empty");
         }
+    }
+
+    public class GuestResetPasswordDto: ResetPasswordDto
+    {
+    }
+
+    public class DriverResetPasswordDto: ResetPasswordDto
+    {
+        
+    }
+
+    public class AdminResetPasswordDto: ResetPasswordDto
+    {
+        
     }
 }

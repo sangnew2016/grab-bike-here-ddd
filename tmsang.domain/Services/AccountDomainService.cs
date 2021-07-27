@@ -24,6 +24,9 @@
             return user != null;
         }
 
+        //=============================================
+        // ADMIN
+        //=============================================
         public R_Admin GetAdminById(string id)
         {
             // doi chieu email/phone voi database
@@ -36,10 +39,53 @@
         public R_Admin GetAdminByEmail(string email)
         {
             // doi chieu email/phone voi database
-            var r_AdminGetRegisteredAccountSpec = new R_AdminGetByEmailSpec(email);
-            var user = this.adminAccountRepository.FindOne(r_AdminGetRegisteredAccountSpec);
+            var r_AdminGetByEmailSpec = new R_AdminGetByEmailSpec(email);
+            var user = this.adminAccountRepository.FindOne(r_AdminGetByEmailSpec);
 
             return user;
         }
+
+        //=============================================
+        // DRIVER
+        //=============================================
+        public R_Driver GetDriverById(string id)
+        {
+            // doi chieu email/phone voi database
+            var r_DriverGetByIdSpec = new R_DriverGetByIdSpec(id);
+            var user = this.driverAccountRepository.FindOne(r_DriverGetByIdSpec);
+
+            return user;
+        }
+
+        public R_Driver GetDriverByEmail(string email)
+        {
+            // doi chieu email/phone voi database
+            var r_DriverGetByEmailSpec = new R_DriverGetByEmailSpec(email);
+            var user = this.driverAccountRepository.FindOne(r_DriverGetByEmailSpec);
+
+            return user;
+        }
+
+        //=============================================
+        // GUEST
+        //=============================================
+        public R_Guest GetGuestById(string id)
+        {
+            // doi chieu email/phone voi database
+            var r_GuestGetByIdSpec = new R_GuestGetByIdSpec(id);
+            var user = this.guestAccountRepository.FindOne(r_GuestGetByIdSpec);
+
+            return user;
+        }
+
+        public R_Guest GetGuestByEmail(string email)
+        {
+            // doi chieu email/phone voi database
+            var r_GuestGetByEmailSpec = new R_GuestGetByEmailSpec(email);
+            var user = this.guestAccountRepository.FindOne(r_GuestGetByEmailSpec);
+
+            return user;
+        }
+
     }
 }

@@ -9,6 +9,7 @@ namespace tmsang.application
         readonly IRepository<R_Admin> adminAccountRepository;
         readonly IRepository<R_Driver> driverAccountRepository;
         readonly IRepository<R_Guest> guestAccountRepository;
+        readonly IRepository<B_DriverBike> driverBikeRepository;
         readonly IStorage storage;
         readonly IAuth auth;
 
@@ -20,6 +21,8 @@ namespace tmsang.application
             IRepository<R_Admin> adminAccountRepository,
             IRepository<R_Driver> driverAccountRepository,
             IRepository<R_Guest> guestAccountRepository,
+            IRepository<B_DriverBike> driverBikeRepository,
+
             AccountDomainService accountDomainService,
             IStorage storage,
             IAuth auth,
@@ -29,12 +32,45 @@ namespace tmsang.application
             this.adminAccountRepository = adminAccountRepository;
             this.driverAccountRepository = driverAccountRepository;
             this.guestAccountRepository = guestAccountRepository;
+            this.driverBikeRepository = driverBikeRepository;
+
             this.accountDomainService = accountDomainService;
             this.storage = storage;
             this.auth = auth;
             this.http = http;
 
             this.unitOfWork = unitOfWork;
+        }
+
+        public void SendSmsCode(string phone) {
+            // send ma SMS code
+            var code = (new Random()).Next(1000000, 9999999).ToString();
+            this.storage.SmsSet(phone, code);
+        }
+
+        //=========================================================
+        // ADMIN
+        //=========================================================
+        public void AdminRegister(AdminRegisterDto registerDto)
+        {
+            // check null or empty
+            registerDto.EmptyValidation();
+            // kiem tra su ton tai
+            var isExists = this.accountDomainService.CanExists(registerDto.Email, registerDto.Phone);
+            if (isExists) {
+                throw new Exception("This email or phone is exists");
+            }
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(registerDto.Phone);
+            if (code != registerDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // add thong tin dang ky vao bang R_Admin -> raise event (email)
+            var hash = auth.EncryptPassword(registerDto.Password);
+            var account = R_Admin.Create(registerDto.FullName, registerDto.Phone, registerDto.Email, hash.Hash, hash.Salt);
+            this.unitOfWork.ForceBeginTransaction();
+            this.adminAccountRepository.Add(account);
         }
 
         public TokenDto AdminLogin(AdminLoginDto loginDto)
@@ -55,25 +91,10 @@ namespace tmsang.application
                 throw new Exception("Password is invalid");
             }
             // neu thoa thi return token
-            return new TokenDto {
+            return new TokenDto
+            {
                 jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Admin.ToString())
             };
-        }
-
-        public void AdminRegister(AdminRegisterDto registerDto)
-        {
-            // check null or empty
-            registerDto.EmptyValidation();
-            // kiem tra su ton tai
-            var isExists = this.accountDomainService.CanExists(registerDto.Email, registerDto.Phone);
-            if (isExists) {
-                throw new Exception("This email or phone is exists");
-            }
-            // add thong tin dang ky vao bang R_Admin -> raise event (email)
-            var hash = auth.EncryptPassword(registerDto.Password);
-            var account = R_Admin.Create(registerDto.FullName, registerDto.Phone, registerDto.Email, hash.Hash, hash.Salt);
-            this.unitOfWork.ForceBeginTransaction();
-            this.adminAccountRepository.Add(account);
         }
 
         public void AdminForgotPassword(string email)
@@ -85,8 +106,7 @@ namespace tmsang.application
                 throw new Exception("This account is not exists");
             }
             // send ma SMS code
-            var code = (new Random()).Next(1000000, 9999999).ToString();
-            this.storage.SmsSet(user.Phone, code);
+            SendSmsCode(user.Phone);
         }
 
         public TokenDto AdminResetPassword(AdminResetPasswordDto resetPasswordDto)
@@ -132,49 +152,231 @@ namespace tmsang.application
             // return token
             return new TokenDto
             {
-                jwt = auth.GenerateToken("343", E_AccountType.Admin.ToString())
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Admin.ToString())
             };
         }
 
-
-        public TokenDto DriverLogin(DriverLoginDto loginDto)
-        {
-            throw new NotImplementedException();
-        }
-
+        //=========================================================
+        // DRIVER
+        //=========================================================
         public void DriverRegister(DriverRegisterDto registerDto)
         {
-            throw new NotImplementedException();
-        }
+            // check null or empty
+            registerDto.EmptyValidation();
+            // kiem tra su ton tai
+            var isExists = this.accountDomainService.CanExists(registerDto.Email, registerDto.Phone);
+            if (isExists)
+            {
+                throw new Exception("This email or phone is exists");
+            }
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(registerDto.Phone);
+            if (code != registerDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // add thong tin dang ky vao bang R_Admin -> raise event (email)
+            var hash = auth.EncryptPassword(registerDto.Password);
 
+            var account = R_Driver.Create(registerDto.FirstName, registerDto.LastName, registerDto.PersonalId, 
+                                            registerDto.Avatar, registerDto.Address, registerDto.Phone, registerDto.Email, 
+                                            hash.Hash, hash.Salt);
+
+            var bike = B_DriverBike.Create(account.Id, registerDto.PlateNo, registerDto.BikeOwner, registerDto.EngineNo,
+                                            registerDto.ChassisNo, registerDto.BikeType, registerDto.Brand, registerDto.RegistrationDate);
+            
+            this.unitOfWork.ForceBeginTransaction();
+            this.driverAccountRepository.Add(account);
+            this.driverBikeRepository.Add(bike);                // vi Bike quan he 1-1 voi Driver Account, nen ta add the nay, chu 1-n thi di tu root
+        }
+        public TokenDto DriverLogin(DriverLoginDto loginDto)
+        {
+            // validate input
+            loginDto.EmptyValidation();
+
+            // doi chieu email - co ton tai trong database
+            var user = this.accountDomainService.GetDriverByEmail(loginDto.Email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // doi chieu password - va kiem tra password hop le
+            var isPasswordMatched = auth.VerifyPassword(loginDto.Password, user.Salt, user.Password);
+            if (!isPasswordMatched)
+            {
+                throw new Exception("Password is invalid");
+            }
+            // neu thoa thi return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Driver.ToString())
+            };
+        }
+        public void DriverForgotPassword(string email)
+        {
+            // kiem tra su ton tai user
+            var user = this.accountDomainService.GetDriverByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // send ma SMS code
+            SendSmsCode(user.Phone);
+        }
         public TokenDto DriverResetPassword(DriverResetPasswordDto resetPasswordDto)
         {
-            throw new NotImplementedException();
+            // validate input (required)
+            resetPasswordDto.EmptyValidation();
+            // kiem tra su ton tai user
+            var user = this.accountDomainService.GetDriverByEmail(resetPasswordDto.Email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(user.Phone);
+            if (code != resetPasswordDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // update password vao bang R_Admin
+            user.ResetPassword(resetPasswordDto.NewPassword);
+            this.unitOfWork.ForceBeginTransaction();
+            this.driverAccountRepository.Update(user);
+            // return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Driver.ToString())
+            };
         }
-
-
-        public void ForgotPassword(string email)
+        public TokenDto DriverChangePassword(DriverChangePasswordDto changePasswordDto) 
         {
-            throw new NotImplementedException();
+            // validate input (required)
+            changePasswordDto.EmptyValidation();
+            // lay thong tin user trong HttpContext
+            var user = (R_Driver)http.HttpContext.Items["User"];
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(user.Phone);
+            if (code != changePasswordDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // update password vao bang R_Admin
+            user.ResetPassword(changePasswordDto.NewPassword);
+            this.driverAccountRepository.Update(user);
+            // return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Driver.ToString())
+            };
         }
 
-
-
-        public TokenDto GuestLogin(GuestLoginDto loginDto)
-        {
-            throw new NotImplementedException();
-        }
-
+        //=========================================================
+        // GUEST
+        //=========================================================
         public void GuestRegister(GuestRegisterDto registerDto)
         {
-            throw new NotImplementedException();
+            // check null or empty
+            registerDto.EmptyValidation();
+            // kiem tra su ton tai
+            var isExists = this.accountDomainService.CanExists(registerDto.Email, registerDto.Phone);
+            if (isExists)
+            {
+                throw new Exception("This email or phone is exists");
+            }
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(registerDto.Phone);
+            if (code != registerDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // add thong tin dang ky vao bang R_Admin -> raise event (email)
+            var hash = auth.EncryptPassword(registerDto.Password);
+            var account = R_Guest.Create(registerDto.FullName, registerDto.Phone, registerDto.Email, hash.Hash, hash.Salt);
+            this.unitOfWork.ForceBeginTransaction();
+            this.guestAccountRepository.Add(account);
         }
+        public TokenDto GuestLogin(GuestLoginDto loginDto)
+        {
+            // validate input
+            loginDto.EmptyValidation();
 
+            // doi chieu email - co ton tai trong database
+            var user = this.accountDomainService.GetGuestByEmail(loginDto.Email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // doi chieu password - va kiem tra password hop le
+            var isPasswordMatched = auth.VerifyPassword(loginDto.Password, user.Salt, user.Password);
+            if (!isPasswordMatched)
+            {
+                throw new Exception("Password is invalid");
+            }
+            // neu thoa thi return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Guest.ToString())
+            };
+        }
+        public void GuestForgotPassword(string email)
+        {
+            // kiem tra su ton tai user
+            var user = this.accountDomainService.GetGuestByEmail(email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // send ma SMS code
+            SendSmsCode(user.Phone);
+        }
         public TokenDto GuestResetPassword(GuestResetPasswordDto resetPasswordDto)
         {
-            throw new NotImplementedException();
+            // validate input (required)
+            resetPasswordDto.EmptyValidation();
+            // kiem tra su ton tai user
+            var user = this.accountDomainService.GetGuestByEmail(resetPasswordDto.Email);
+            if (user == null)
+            {
+                throw new Exception("This account is not exists");
+            }
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(user.Phone);
+            if (code != resetPasswordDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // update password vao bang R_Admin
+            user.ResetPassword(resetPasswordDto.NewPassword);
+            this.unitOfWork.ForceBeginTransaction();
+            this.guestAccountRepository.Update(user);
+            // return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Guest.ToString())
+            };
+        }
+        public TokenDto GuestChangePassword(GuestChangePasswordDto changePasswordDto)
+        {
+            // validate input (required)
+            changePasswordDto.EmptyValidation();
+            // lay thong tin user trong HttpContext
+            var user = (R_Guest)http.HttpContext.Items["User"];
+            // kiem tra SMS code (duoc goi luc Forgot password)
+            var code = this.storage.SmsGetCode(user.Phone);
+            if (code != changePasswordDto.SmsCode)
+            {
+                throw new Exception("SMS Code is invalid");
+            }
+            // update password vao bang R_Admin
+            user.ResetPassword(changePasswordDto.NewPassword);
+            this.guestAccountRepository.Update(user);
+            // return token
+            return new TokenDto
+            {
+                jwt = auth.GenerateToken(user.Id.ToString(), E_AccountType.Guest.ToString())
+            };
         }
 
-        
     }
 }

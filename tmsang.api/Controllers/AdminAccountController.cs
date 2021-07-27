@@ -13,19 +13,6 @@ namespace tmsang.api
             this.accountService = accountService;
         }
 
-        [HttpPost("login")]
-        public TokenDto Login(AdminLoginDto loginDto)
-        {
-            try
-            {
-                return this.accountService.AdminLogin(loginDto);
-            }
-            catch (System.Exception)
-            {
-                throw;
-            }
-        }
-
         [HttpPost("register")]
         public void Register(AdminRegisterDto registerDto)
         {
@@ -39,12 +26,25 @@ namespace tmsang.api
             }
         }
 
+        [HttpPost("login")]
+        public TokenDto Login(AdminLoginDto loginDto)
+        {
+            try
+            {
+                return this.accountService.AdminLogin(loginDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
         [HttpPost("forgot")]
         public void ForgotPassword(string email)
         {
             try
             {
-                this.accountService.ForgotPassword(email);
+                this.accountService.AdminForgotPassword(email);
             }
             catch (System.Exception)
             {
@@ -72,6 +72,19 @@ namespace tmsang.api
             try
             {
                 return this.accountService.AdminChangePassword(changePasswordDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("smscode")]
+        public void SmsCode(string phone)
+        {
+            try
+            {
+                this.accountService.SendSmsCode(phone);
             }
             catch (System.Exception)
             {

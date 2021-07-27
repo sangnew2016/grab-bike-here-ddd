@@ -12,31 +12,83 @@ namespace tmsang.api
             this.accountService = accountService;
         }
 
-        
-        public TokenDto Login(GuestLoginDto loginDto) 
-        {
-            // tra ve token
-            return this.accountService.GuestLogin(loginDto);
-        }
-
+        [HttpPost("register")]
         public void Register(GuestRegisterDto registerDto)
         {
-            // register se email, kich hoat account thong qua email
-            this.accountService.GuestRegister(registerDto);
+            try
+            {
+                this.accountService.GuestRegister(registerDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
         }
 
+        [HttpPost("login")]
+        public TokenDto Login(GuestLoginDto loginDto)
+        {
+            try
+            {
+                return this.accountService.GuestLogin(loginDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost("forgot")]
         public void ForgotPassword(string email)
         {
-            // forgot se email, link(co token: verifyResetPasswordToken) co expire sau 1h - kich hoat se hien thi Form "Reset Password"
-            this.accountService.ForgotPassword(email);
+            try
+            {
+                this.accountService.GuestForgotPassword(email);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
         }
 
+        [HttpPost("reset")]
         public TokenDto ResetPassword(GuestResetPasswordDto resetPasswordDto)
         {
-            // ResetPasswordDto: [verifyResetPasswordToken, email, new password, sms code]
-            // Reset Password tra ve token, cho phep User login ngay va luon
-            return this.accountService.GuestResetPassword(resetPasswordDto);
+            try
+            {
+                return this.accountService.GuestResetPassword(resetPasswordDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
         }
 
+        [Authorize]
+        [HttpPost("change")]
+        public TokenDto ChangePassword(GuestChangePasswordDto changePasswordDto)
+        {
+            try
+            {
+                return this.accountService.GuestChangePassword(changePasswordDto);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("smscode")]
+        public void SmsCode(string phone)
+        {
+            try
+            {
+                this.accountService.SendSmsCode(phone);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
     }
 }

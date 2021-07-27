@@ -10,12 +10,18 @@
         void DriverRegister(DriverRegisterDto registerDto);
         void AdminRegister(AdminRegisterDto registerDto);
 
-        void ForgotPassword(string email);
+        void GuestForgotPassword(string email);
+        void DriverForgotPassword(string email);
+        void AdminForgotPassword(string email);
 
         TokenDto GuestResetPassword(GuestResetPasswordDto resetPasswordDto);
         TokenDto DriverResetPassword(DriverResetPasswordDto resetPasswordDto);
         TokenDto AdminResetPassword(AdminResetPasswordDto resetPasswordDto);
 
+        TokenDto GuestChangePassword(GuestChangePasswordDto changePasswordDto);
+        TokenDto DriverChangePassword(DriverChangePasswordDto changePasswordDto);
         TokenDto AdminChangePassword(AdminChangePasswordDto changePasswordDto);
+
+        void SendSmsCode(string phone);
     }
 }

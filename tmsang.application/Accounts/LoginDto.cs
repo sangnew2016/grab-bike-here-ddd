@@ -16,13 +16,16 @@ namespace tmsang.application
 
     public class GuestLoginDto : LoginDto
     {
+
     }
 
     public class DriverLoginDto : LoginDto
     {
+        public string Type { get; set; }            // (Driver - nhu enum) muc dich: de bay cac request nac danh thieu tham so
     }
 
     public class AdminLoginDto : LoginDto
     {
+        public string Type { get; set; }            // (Admin - nhu enum) muc dich: de bay cac request nac danh thieu tham so
     }
 }
